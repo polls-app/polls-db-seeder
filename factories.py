@@ -8,12 +8,14 @@ from faker import Faker
 from db import session
 from vectorizer import PollVectorizer
 from models import (User,
+                    Profile,
                     Category,
                     Poll,
                     Hashtag,
                     HashtagToPoll,
                     Option,
-                    Vote)
+                    Vote,
+                    Share)
 
 
 fake = Faker()
@@ -51,6 +53,22 @@ class UserFactory(factory.alchemy.SQLAlchemyModelFactory):
         min_joined_date = datetime(2010, 1, 1)
         max_joined_date = datetime.now()
     
+
+class ProfileFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Profile
+        sqlalchemy_session = session
+    
+    id = factory.LazyFunction(lambda: str(uuid4()))
+    username = factory.Sequence(lambda n: f"username{n + 1}")
+    first_name = factory.Faker("first_name")
+    last_name = factory.Faker("last_name")
+    description = factory.Faker("text")
+    avatar_path = factory.Faker("file_path", extension="jpg")
+    contribution_count = 0
+
+    user = factory.SubFactory(UserFactory)
+
 
 class CategoryFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
@@ -136,4 +154,10 @@ class OptionFactory(factory.alchemy.SQLAlchemyModelFactory):
 class VoteFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Vote
+        sqlalchemy_session = session
+
+
+class ShareFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Share
         sqlalchemy_session = session

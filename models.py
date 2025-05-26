@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import (
     String, Text, Boolean, DateTime, Enum, SmallInteger,
-    CHAR, ForeignKey, UUID, Enum, func
+    CHAR, ForeignKey, UUID, Enum, Integer, func
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship, declarative_base
 from pgvector.sqlalchemy import Vector
@@ -24,7 +24,23 @@ class User(Base):
     joined_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
     last_login: Mapped[datetime] = mapped_column(DateTime)
 
+    profile: Mapped["Profile"] = relationship("Profile", back_populates="user")
     polls: Mapped[list["Poll"]] = relationship("Poll", back_populates="user")
+
+
+class Profile(Base):
+    __tablename__ = "profiles"
+
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
+    username: Mapped[str] = mapped_column(String(37), unique=True)
+    first_name: Mapped[str] = mapped_column(String(30))
+    last_name: Mapped[str | None] = mapped_column(String(30))
+    description: Mapped[str | None] = mapped_column(Text)
+    avatar_path: Mapped[str | None] = mapped_column(String(255))
+    contribution_count: Mapped[int] = mapped_column(Integer, default=0)
+    user_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"), unique=True)
+
+    user: Mapped["User"] = relationship("User", back_populates="profile")
 
 
 class Category(Base):
@@ -90,3 +106,10 @@ class Vote(Base):
     user_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"), primary_key=True)
     option_id: Mapped[str] = mapped_column(UUID, ForeignKey("options.id"), primary_key=True)
     voted_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+
+class Share(Base):
+    __tablename__ = "shares"
+
+    user_id: Mapped[str] = mapped_column(UUID, primary_key=True)
+    poll_id: Mapped[str] = mapped_column(UUID, primary_key=True)

@@ -1,5 +1,6 @@
 import json
 import random
+import itertools
 from datetime import datetime
 
 from faker import Faker
@@ -7,12 +8,14 @@ from faker import Faker
 from db import session
 from recsys_config import CATEGORIES
 from factories import (UserFactory,
+                       ProfileFactory,
                        CategoryFactory,
                        HashtagFactory,
                        PollFactory,
                        HashtagToPollFactory,
                        OptionFactory,
-                       VoteFactory)
+                       VoteFactory,
+                       ShareFactory)
 
 
 fake = Faker()
@@ -22,23 +25,31 @@ print("\n1️⃣  Creating users...")
 users = UserFactory.create_batch(100)
 print("✅ Created 100 users")
 
-print("\n2️⃣  Creating categories...")
+print("\n2️⃣  Creating profiles...")
+profiles = [ProfileFactory.create(user=user) for user in users]
+print("✅ Created 100 profiles")
+
+print("\n3️⃣  Creating categories...")
 categories = [CategoryFactory.create(name=cat) for cat in CATEGORIES]
 session.flush()
 print(f"✅ Created {len(categories)} categories")
 
-print("\n3️⃣  Loading poll data...")
+print("\n4️⃣  Loading poll data...")
 with open("data/polls.json", "r", encoding='utf-8') as file:
     polls_data = json.load(file)
 print(f"📊 Found {len(polls_data)} polls to process")
 
-print("\n4️⃣  Creating polls, options, hashtags, hashtags_to_polls and votes...")
+print("\n5️⃣  Creating polls, options, hashtags, hashtags_to_polls and votes...")
 unique_tags = {}
 counters = {"polls": 0, "options": 0, "hashtags": 0, "hashtags_to_polls": 0, "votes": 0}
+polls = []
 
 for item in polls_data:
     user = random.choice(users)
     category = categories[CATEGORIES.index(item["category"])]
+
+    # Update contribution count in profile
+    profiles[users.index(user)].contribution_count += 1
 
     # Create poll
     poll = PollFactory.create(
@@ -50,6 +61,7 @@ for item in polls_data:
         category=category,
         user=user
     )
+    polls.append(poll) 
     session.flush()
     counters["polls"] += 1
 
@@ -76,7 +88,7 @@ for item in polls_data:
         counters["hashtags_to_polls"] += 1
 
     users_copy = users.copy()
-    
+
     # Create votes
     for i in range(random.randint(0, len(users))):
         user = random.choice(users_copy)
@@ -93,7 +105,13 @@ print(f"✅ Created {counters['hashtags']} hashtags")
 print(f"✅ Created {counters['hashtags_to_polls']} hashtags_to_polls")
 print(f"✅ Created {counters['votes']} votes")
 
-print("\n5️⃣  Save changes...")
+print("\n6️⃣  Creating shares...")
+share_combinations = list(itertools.product(users, polls))
+selected_share_combinations = random.sample(share_combinations, k=len(polls)*2)
+shares = [ShareFactory.create(user_id=user.id, poll_id=poll.id) for user, poll in selected_share_combinations]
+print(f"✅ Created {len(shares)} shares")
+
+print("\n7️⃣  Save changes...")
 session.commit()
 
 print("\n🎉 Database population completed!")
