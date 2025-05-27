@@ -58,12 +58,14 @@ The data generator creates the following entities:
 
 | Entity | Quantity | Description |
 |--------|----------|-------------|
-| **Users** | 100 | Fake user accounts with realistic profiles |
+| **Users** | 100 | Fake user accounts with realistic data |
+| **Profiles** | 100 | Fake user profiles with realistic data |
 | **Categories** | Variable | Poll categories from configuration |
 | **Polls** | Variable | Polls loaded from `data/polls.json` |
 | **Options** | Variable | Poll answer options |
 | **Hashtags** | Variable | Unique hashtags extracted from poll data |
 | **Votes** | Variable | Random user votes on poll options |
+| **Shares** | Variable | Twice the number of polls |
 
 ## Output
 
@@ -78,20 +80,26 @@ The script provides real-time feedback during execution:
 1️⃣ Creating users...
 ✅ Created 100 users
 
-2️⃣ Creating categories...
+2️⃣ Creating profiles...
+✅ Created 100 profiles
+
+3️⃣ Creating categories...
 ✅ Created 41 categories
 
-3️⃣ Loading poll data...
+4️⃣ Loading poll data...
 📊 Found 37 polls to process
 
-4️⃣ Creating polls, options, hashtags, hashtags_to_polls and votes...
+5️⃣ Creating polls, options, hashtags, hashtags_to_polls and votes...
 ✅ Created 37 polls
 ✅ Created 182 options
 ✅ Created 161 hashtags
 ✅ Created 211 hashtags_to_polls
-✅ Created 1512 votes
+✅ Created 1822 votes
 
-5️⃣ Save changes...
+6️⃣ Creating shares...
+✅ Created 74 shares
+
+7️⃣ Save changes...
 
 🎉 Database population completed!
 ```
