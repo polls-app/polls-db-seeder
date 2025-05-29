@@ -60,12 +60,15 @@ The data generator creates the following entities:
 |--------|----------|-------------|
 | **Users** | 100 | Fake user accounts with realistic data |
 | **Profiles** | 100 | Fake user profiles with realistic data |
+| **Followings** | Variable | Randomly generated followings, the number is about 25% of all possible followings between 100 users |
 | **Categories** | Variable | Poll categories from configuration |
 | **Polls** | Variable | Polls loaded from `data/polls.json` |
 | **Options** | Variable | Poll answer options |
+| **PollInvitedUsers** | Variable | Each poll with `access_mode=“restricted”` can have from 1 to 20 randomly generated invitations |
 | **Hashtags** | Variable | Unique hashtags extracted from poll data |
 | **Votes** | Variable | Random user votes on poll options |
 | **Shares** | Variable | Twice the number of polls |
+| **Comments** | Variable | Approximately 30% of the polls have single-level (non-nested) comments; such polls can have anywhere from 1 to 50 comments |
 
 ## Output
 
@@ -83,23 +86,28 @@ The script provides real-time feedback during execution:
 2️⃣ Creating profiles...
 ✅ Created 100 profiles
 
-3️⃣ Creating categories...
+3️⃣ Creating followings...
+✅ Created 2481 followings
+
+4️⃣ Creating categories...
 ✅ Created 41 categories
 
-4️⃣ Loading poll data...
+5️⃣ Loading poll data...
 📊 Found 37 polls to process
 
-5️⃣ Creating polls, options, hashtags, hashtags_to_polls and votes...
+6️⃣ Creating polls, options, hashtags, and more...
 ✅ Created 37 polls
 ✅ Created 182 options
+✅ Created 9 invitations
 ✅ Created 161 hashtags
 ✅ Created 211 hashtags_to_polls
-✅ Created 1822 votes
+✅ Created 1844 votes
+✅ Created 308 comments
 
-6️⃣ Creating shares...
+7️⃣ Creating shares...
 ✅ Created 74 shares
 
-7️⃣ Save changes...
+8️⃣ Save changes...
 
 🎉 Database population completed!
 ```

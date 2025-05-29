@@ -113,3 +113,36 @@ class Share(Base):
 
     user_id: Mapped[str] = mapped_column(UUID, primary_key=True)
     poll_id: Mapped[str] = mapped_column(UUID, primary_key=True)
+
+
+class Following(Base):
+    __tablename__ = "followings"
+
+    follower_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"), primary_key=True)
+    user_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"), primary_key=True)
+    followed_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+
+    follower: Mapped["User"] = relationship("User", foreign_keys=[follower_id])
+    user: Mapped["User"] = relationship("User", foreign_keys=[user_id])
+
+
+class PollInvitedUser(Base):
+    __tablename__ = "poll_invited_users"
+
+    poll_id: Mapped[str] = mapped_column(UUID, ForeignKey("polls.id"), primary_key=True)
+    user_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"), primary_key=True)
+
+
+class Comment(Base):
+    __tablename__ = "comments"
+
+    id: Mapped[str] = mapped_column(UUID, primary_key=True)
+    content: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
+    updated_at: Mapped[datetime | None] = mapped_column(DateTime)
+    parent_id: Mapped[str | None] = mapped_column(UUID, ForeignKey("comments.id"))
+    poll_id: Mapped[str] = mapped_column(UUID, ForeignKey("polls.id"))
+    user_id: Mapped[str] = mapped_column(UUID, ForeignKey("users.id"))
+
+    poll: Mapped["Poll"] = relationship("Poll")
+    user: Mapped["User"] = relationship("User")

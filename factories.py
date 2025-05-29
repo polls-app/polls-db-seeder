@@ -15,7 +15,10 @@ from models import (User,
                     HashtagToPoll,
                     Option,
                     Vote,
-                    Share)
+                    Share,
+                    Following,
+                    PollInvitedUser,
+                    Comment)
 
 
 fake = Faker()
@@ -161,3 +164,42 @@ class ShareFactory(factory.alchemy.SQLAlchemyModelFactory):
     class Meta:
         model = Share
         sqlalchemy_session = session
+
+
+class FollowingFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Following
+        sqlalchemy_session = session
+    
+    user = factory.SubFactory(UserFactory)
+    follower = factory.SubFactory(UserFactory)
+    followed_at = factory.LazyAttribute(
+        lambda self: fake.date_time_between(max(self.user.joined_at, self.follower.joined_at),
+                                            datetime.now())
+    )
+
+
+class PollInvitedUserFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = PollInvitedUser
+        sqlalchemy_session = session
+
+
+class CommentFactory(factory.alchemy.SQLAlchemyModelFactory):
+    class Meta:
+        model = Comment
+        sqlalchemy_session = session
+
+    id = factory.LazyFunction(lambda: str(uuid4()))
+    content = factory.Faker("sentence", nb_words=10)
+    created_at = factory.LazyAttribute(
+        lambda self: fake.date_time_between(max(self.user.joined_at, self.poll.created_at),
+                                            datetime.now())
+    )
+    updated_at = factory.LazyAttribute(
+        lambda self: fake.date_time_between(self.created_at, datetime.now()) if random.random() > 0.7 else None
+    )
+    parent_id = None
+    
+    poll = factory.SubFactory(PollFactory)
+    user = factory.SubFactory(UserFactory)
