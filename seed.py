@@ -15,7 +15,10 @@ from factories import (UserFactory,
                        HashtagToPollFactory,
                        OptionFactory,
                        VoteFactory,
-                       ShareFactory)
+                       ShareFactory,
+                       FollowingFactory,
+                       PollInvitedUserFactory,
+                       CommentFactory)
 
 
 fake = Faker()
@@ -29,19 +32,26 @@ print("\n2️⃣  Creating profiles...")
 profiles = [ProfileFactory.create(user=user) for user in users]
 print("✅ Created 100 profiles")
 
-print("\n3️⃣  Creating categories...")
+print("\n3️⃣  Creating followings...")
+followings = [FollowingFactory.create(follower=follower, user=user)
+                          for follower, user in itertools.product(users, users)
+                          if follower != user and random.random() > 0.75]
+print(f"✅ Created {len(followings)} followings")
+
+print("\n4️⃣  Creating categories...")
 categories = [CategoryFactory.create(name=cat) for cat in CATEGORIES]
 session.flush()
 print(f"✅ Created {len(categories)} categories")
 
-print("\n4️⃣  Loading poll data...")
+print("\n5️⃣  Loading poll data...")
 with open("data/polls.json", "r", encoding='utf-8') as file:
     polls_data = json.load(file)
 print(f"📊 Found {len(polls_data)} polls to process")
 
-print("\n5️⃣  Creating polls, options, hashtags, hashtags_to_polls and votes...")
+print("\n6️⃣  Creating polls, options, hashtags, and more...")
 unique_tags = {}
-counters = {"polls": 0, "options": 0, "hashtags": 0, "hashtags_to_polls": 0, "votes": 0}
+counters = {"polls": 0, "options": 0, "invitations": 0, "hashtags": 0,
+            "hashtags_to_polls": 0, "votes": 0, "comments": 0}
 polls = []
 
 for item in polls_data:
@@ -76,6 +86,13 @@ for item in polls_data:
         ))
     counters["options"] += len(options)
 
+    # Create invitations
+    if poll.access_mode == "restricted":
+        invited_users = random.sample(users, k=random.randint(0, 20))
+        invitations = [PollInvitedUserFactory(poll_id=poll.id, user_id=user.id)
+                       for user in invited_users]
+        counters["invitations"] += len(invitations)
+
     # Create and link hashtags
     for tag in item["tags"]:
         if tag not in unique_tags:
@@ -99,19 +116,28 @@ for item in polls_data:
             VoteFactory.create(user_id=user.id, option_id=options[j].id, voted_at=voted_at)
             counters["votes"] += 1
 
+    # Create comments for 30% of polls
+    if random.random() > 0.7:
+        comments = [CommentFactory.create(poll=poll, user=user)
+                    for user in random.sample(users, k=random.randint(1, len(users) // 2))]
+        counters["comments"] += len(comments)
+        
+
 print(f"✅ Created {counters['polls']} polls")
 print(f"✅ Created {counters['options']} options")
+print(f"✅ Created {counters['invitations']} invitations")
 print(f"✅ Created {counters['hashtags']} hashtags")
 print(f"✅ Created {counters['hashtags_to_polls']} hashtags_to_polls")
 print(f"✅ Created {counters['votes']} votes")
+print(f"✅ Created {counters['comments']} comments")
 
-print("\n6️⃣  Creating shares...")
+print("\n7️⃣  Creating shares...")
 share_combinations = list(itertools.product(users, polls))
 selected_share_combinations = random.sample(share_combinations, k=len(polls)*2)
 shares = [ShareFactory.create(user_id=user.id, poll_id=poll.id) for user, poll in selected_share_combinations]
 print(f"✅ Created {len(shares)} shares")
 
-print("\n7️⃣  Save changes...")
+print("\n8️⃣  Save changes...")
 session.commit()
 
 print("\n🎉 Database population completed!")

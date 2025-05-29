@@ -143,7 +143,7 @@
     ],
     "tags": ["anatomy", "human body", "bones", "health", "medicine", "biology"],
     "possible_answers_count": 1,
-    "access_mode": "public",
+    "access_mode": "restricted",
     "category": "Health and Medicine"
   },
   {
@@ -279,7 +279,7 @@
     ],
     "tags": ["gaming", "platforms", "video_games", "entertainment", "technology"],
     "possible_answers_count": 1,
-    "access_mode": "public",
+    "access_mode": "restricted",
     "category": "Gaming"
   },
   {
